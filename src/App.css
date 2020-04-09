@@ -1,6 +1,14 @@
+
+.gram{
+  justify-content: center;
+  align-items: center;
+}
+
 .gray-background {
   background: darkgray;
+  /* justify-content: center; */
+  /* 세로로 정렬 */
+  align-items: center;
+  /* 가로로 정렬 */
 }
-.gray-white {
-  
-}
+
