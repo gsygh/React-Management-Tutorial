@@ -9,6 +9,7 @@ import TableBody from '@material-ui/core/TableBody';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
 import { withStyles } from "@material-ui/core/styles";
+import CircularProgress from '@material-ui/core/CircularProgress'
 
 const styles = theme => ({
   root: {
@@ -21,18 +22,42 @@ const styles = theme => ({
   table: {
     minWidth: 1080
     // 화면 크기가 줄어들어도 테이블의 최소 크기는 1080이라 그대로 출력
+  },
+  progress: {
+    margin: theme.spacing(2)
   }
+
+
 })
+
+/* App.js의 라이프 사이클
+1. constructor()
+
+2. componentWillMount()
+
+3. render()
+
+4. componentDidMount()
+
+props or state 변경 -> shouldComponentUpdate()가 사용되어 render를 다시 불러옴
+
+-> 상태만 잘 관리하면 됨
+*/
+
 
 
 class App extends Component {
 
   state = {
-    customers: ""
+    customers: [],
+    completed: 0
   }
   // 이론 상 props 는 변경될 수 없는 데이터 명시, state는 변경될 수 있는 데이터 명시
   
+
   componentDidMount() {
+    this.timer = setInterval(this.progress, 20);
+    // 0.02초마다 progress 함수가 실행되도록
     this.callApi()
     .then(res => this.setState({customers: res}))
     // callAPI 작업 후 then을 통해 body -> res가 되어 setState 동작
@@ -47,9 +72,12 @@ class App extends Component {
     const body = await response.json();
     return body;
   }
-  //async => 비동기적
-  
   // response라고 해서 접속하고자 하는 주소를 넣음 (현재는 로컬 )
+
+  progress = () => {
+    const {completed} = this.state;
+    this.setState({ completed: completed >= 100 ? 0 : completed + 1});
+  }
 
 
 
@@ -72,19 +100,28 @@ class App extends Component {
           <TableBody>
             {
               this.state.customers ? this.state.customers.map(c => {
+                console.log(c.Item);
                 return (
                   <Customer
-                    key={c.id}
-                    id={c.id}
-                    image={c.image}
-                    name={c.name}
-                    birthday={c.birthday}
-                    gender={c.gender}
-                    job={c.job}
+                  
+                    key={c.Item.id}
+                    id={c.Item.id}
+                    image={c.Item.image}
+                    name={c.Item.name}
+                    birthday={c.Item.birthday}
+                    gender={c.Item.gender}
+                    job={c.Item.job}
                   />
                 );
+                console.log("end");
               })
-              : ""
+              :
+              <TableRow>
+                <TableCell colSpan="6" align="center" >
+                  <CircularProgress className={classes.progress} variant="determinate" value={this.state.completed}/>
+
+                </TableCell>
+              </TableRow>
             }
           </TableBody>
         </Table>

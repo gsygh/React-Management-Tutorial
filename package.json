@@ -2,9 +2,9 @@
     "name": "management",
     "version": "1.0.0",
     "scripts": {
-        "client": "cd client && yarn start",
         "server": "nodemon server.js",
-        "dev": "concurrently --kill-others-on-fail \"yarn server\" \"yarn client\""
+        "client": "cd client && yarn start",
+        "dev": "concurrently --kill-others-on-fail \"yarn client\" \"yarn server\""
     },
     "dependencies": {
         "body-parser": "^1.19.0",
