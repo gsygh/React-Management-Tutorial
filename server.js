@@ -20,6 +20,8 @@ var dynamodb = new AWS.DynamoDB();
 
 var docClient = new AWS.DynamoDB.DocumentClient();
 
+const multer = require('multer');
+const upload = multer({dest: './upload'});
 
 app.get('/api/customers', (req, res) => {
 
@@ -51,6 +53,54 @@ app.get('/api/customers', (req, res) => {
     });
     
     
+});
+
+app.use('/image', express.static('./upload'));
+
+app.post('/api/customers', upload.single('image'), (req, res) => {
+    let image = '/image/' + req.file.filename;
+    let name = req.body.name;
+    let birthday = req.body.birthday;
+    let gender = req.body.gender;
+    let job = req.body.job;
+    var params = {
+        TableName: "Customer", 
+        Item:{
+            "id": '1',
+            "name": name,
+            "birthday": birthday,
+            "gender": gender,
+            "job": job,
+            "image": image
+        }
+    };
+
+    docClient.put(params, function(err, data) {
+        if (err) {
+            console.error("Unable to add item. Error JSON:", JSON.stringify(err, null, 2));
+        } else {
+            res.send("[" + JSON.stringify(data, null, 2) + "]");
+        }
+    });
+});
+
+app.delete('/api/customers/:id', (req, res) => {
+    let id = req.params.id;
+    console.log(id);
+    var params = {
+        TableName: 'Customer', // give it your table name 
+        Key:{
+            "id" : id
+        }
+    };
+
+    docClient.delete(params, function(err, data) {
+        if (err) {
+            console.error("Unable to delete item. Error JSON:", JSON.stringify(err, null, 2));
+        } else {
+            console.log("DeleteItem succeeded:", JSON.stringify(data, null, 2));
+        }
+    });
 });
 
 app.listen(port, () => console.log(`listening on port ${port}`));

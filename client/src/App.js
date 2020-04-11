@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 import Customer from './components/Customer';
+import CustomerAdd from './components/CustomerAdd';
 import Paper from '@material-ui/core/Table';
 // 바깥을 감쌀 때 쓰는 태그 여기서는 div 대역으로 사용한 듯
 import Table from '@material-ui/core/table';
@@ -48,12 +49,26 @@ props or state 변경 -> shouldComponentUpdate()가 사용되어 render를 다�
 
 class App extends Component {
 
-  state = {
-    customers: [],
-    completed: 0
+  constructor(props) {
+    super(props);
+    this.state = {
+      customers: '',
+      completed: 0
+    }
   }
   // 이론 상 props 는 변경될 수 없는 데이터 명시, state는 변경될 수 있는 데이터 명시
   
+  stateRefresh = () => {
+    this.setState({
+      customers: '',
+      completed: 0
+    });
+    this.callApi()
+    .then(res => this.setState({customers: res}))
+    // callAPI 작업 후 then을 통해 body -> res가 되어 setState 동작
+    .catch(err => console.log(err));
+  }
+
 
   componentDidMount() {
     this.timer = setInterval(this.progress, 20);
@@ -85,50 +100,51 @@ class App extends Component {
     const {classes} = this.props;
     // classes 변수를 정의해 위에서 적용한 스타일이 적용될 수 있도록
     return (
-      <Paper className={classes.root}>
-        <Table className={classes.table}>
-          <TableHead>
-            <TableRow>
-              <TableCell>번호</TableCell>
-              <TableCell>이미지</TableCell>
-              <TableCell>이름</TableCell>
-              <TableCell>생년월일</TableCell>
-              <TableCell>성별</TableCell>
-              <TableCell>직업</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {
-              this.state.customers ? this.state.customers.map(c => {
-                console.log(c.Item);
-                return (
-                  <Customer
-                  
-                    key={c.Item.id}
-                    id={c.Item.id}
-                    image={c.Item.image}
-                    name={c.Item.name}
-                    birthday={c.Item.birthday}
-                    gender={c.Item.gender}
-                    job={c.Item.job}
-                  />
-                );
-                console.log("end");
-              })
-              :
+      <div>
+        <Paper className={classes.root}>
+          <Table className={classes.table}>
+            <TableHead>
               <TableRow>
-                <TableCell colSpan="6" align="center" >
-                  <CircularProgress className={classes.progress} variant="determinate" value={this.state.completed}/>
-
-                </TableCell>
+                <TableCell>번호</TableCell>
+                <TableCell>이미지</TableCell>
+                <TableCell>이름</TableCell>
+                <TableCell>생년월일</TableCell>
+                <TableCell>성별</TableCell>
+                <TableCell>직업</TableCell>
+                <TableCell>설정</TableCell>
               </TableRow>
-            }
-          </TableBody>
-        </Table>
+            </TableHead>
+            <TableBody>
+              {
+                this.state.customers ? this.state.customers.map(c => {
+                  return (
+                    <Customer stateRefresh={this.stateRefresh}
+                      key={c.Item.id}
+                      id={c.Item.id}
+                      image={c.Item.image}
+                      name={c.Item.name}
+                      birthday={c.Item.birthday}
+                      gender={c.Item.gender}
+                      job={c.Item.job}
+                    />
+                  );
+                })
+                  :
+                  <TableRow>
+                    <TableCell colSpan="6" align="center" >
+                      <CircularProgress className={classes.progress} variant="determinate" value={this.state.completed} />
 
-        {/* map이라는 함수를 통해 반복문 재생. */}
-        {/* map 을 이용해 출력할 때는 꼭 key를 설정해 줄 것 */}
-      </Paper>
+                    </TableCell>
+                  </TableRow>
+              }
+            </TableBody>
+          </Table>
+
+          {/* map이라는 함수를 통해 반복문 재생. */}
+          {/* map 을 이용해 출력할 때는 꼭 key를 설정해 줄 것 */}
+        </Paper>
+        <CustomerAdd stateRefresh={this.stateRefresh}></CustomerAdd>
+      </div>
     );
   }
 } export default withStyles(styles)(App);
